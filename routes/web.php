@@ -18,5 +18,6 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('/scrape/{storeId}', [ContentCrawler::class, 'crawl']);
 Route::get('/scrape', [ContentCrawler::class, 'crawlAll']);
 // https://crawler-test.com/

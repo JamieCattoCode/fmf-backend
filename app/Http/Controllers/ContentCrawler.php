@@ -24,29 +24,30 @@ class ContentCrawler extends Controller
     {
         $this->crawlProfile = new TestCrawlProfile;
         $this->furnitureStoreRepo = $furnitureStoreRepo;
+        set_time_limit(0);
     }
 
-    // public function crawl()
-    // {
-    //     ob_start(); // Start output buffering
+    public function crawl(string $storeId)
+    {
+        ob_start(); // Start output buffering
 
-    //     $crawler = SpatieCrawler::create()
-    //     ->addCrawlObserver(new ProductPageCrawlObserver($this->furnitureStoreRepo, ))
-    //     ->setCrawlProfile($this->crawlProfile)
-    //     ->setTotalCrawlLimit(300)
-    //     ->startCrawling($this->url);
+        $furnitureStore = $this->furnitureStoreRepo->getStoreById($storeId);
 
-    //     $output = ob_get_contents(); // Store buffer in variable
+        $crawler = SpatieCrawler::create()
+        ->addCrawlObserver(new ProductPageCrawlObserver($this->furnitureStoreRepo, $furnitureStore, true))
+        ->setCrawlProfile($this->crawlProfile)
+        // ->setTotalCrawlLimit(500)
+        ->startCrawling($furnitureStore->url);
 
-    //     ob_end_clean(); // End buffering and clean up
+        $output = ob_get_contents(); // Store buffer in variable
 
-    //     return $output;
-    // }
+        ob_end_clean(); // End buffering and clean up
+
+        return $output;
+    }
 
     public function crawlAll()
     {
-        ob_start();
-
         $furnitureStores = $this->furnitureStoreRepo->getAllStores();
 
         foreach ($furnitureStores as $store) 
@@ -57,8 +58,6 @@ class ContentCrawler extends Controller
                 ->setTotalCrawlLimit(300)
                 ->startCrawling($store->url);
         }
-
-        ob_end_clean();
     }
 
     public function fullUrl() {

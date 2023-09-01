@@ -17,6 +17,8 @@ class CreateFurnitureStoresTable extends Migration
             $table->id();
             $table->string('name');
             $table->string('url');
+            $table->integer('num_product_pages')->nullable();
+            $table->timestamps();
         });
     }
 

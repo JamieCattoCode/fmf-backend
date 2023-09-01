@@ -6,46 +6,63 @@ use Illuminate\Http\Request;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Client;
 use Symfony\Component\DomCrawler\Crawler;
+use App\Http\BrowserKit\Client as BrowserClient;
+use Exception;
+use App\Crawler\ProductPageCrawlObserver;
+use App\Crawler\TestCrawlProfile;
+use App\Repository\FurnitureStoreInterface;
+use Spatie\Crawler\Crawler as SpatieCrawler;
 
 class ContentCrawler extends Controller
 {
-    private $client;
-    private $url;
 
-    public function __construct()
+    protected $url;
+    protected $crawlProfile;
+    protected $furnitureStoreRepo;
+
+    public function __construct(Request $request, FurnitureStoreInterface $furnitureStoreRepo)
     {
-        $this->client = new Client([
-            'timeout' => 10,
-            'verify' => false
-        ]);
-        $this->url = 'https://www.furniturevillage.co.uk/ariana-2-seater-fabric-classic-back-sofa/ZFRSP000000000038817.html?dwvar_ZFRSP000000000038817_color=dapple-chocolate-no-insert';
+        $this->crawlProfile = new TestCrawlProfile;
+        $this->furnitureStoreRepo = $furnitureStoreRepo;
     }
 
-    public function getSelectionFromDocument(Request $request) 
+    // public function crawl()
+    // {
+    //     ob_start(); // Start output buffering
+
+    //     $crawler = SpatieCrawler::create()
+    //     ->addCrawlObserver(new ProductPageCrawlObserver($this->furnitureStoreRepo, ))
+    //     ->setCrawlProfile($this->crawlProfile)
+    //     ->setTotalCrawlLimit(300)
+    //     ->startCrawling($this->url);
+
+    //     $output = ob_get_contents(); // Store buffer in variable
+
+    //     ob_end_clean(); // End buffering and clean up
+
+    //     return $output;
+    // }
+
+    public function crawlAll()
     {
-        $selection = $request->query('selection');
+        ob_start();
 
-        $response = $this->client->get($this->url);
-        $content = $response->getBody()->getContents();
+        $furnitureStores = $this->furnitureStoreRepo->getAllStores();
 
-        $crawler = new Crawler($content);
-
-        $data = [];
-
-        switch($selection) {
-            case 'title':
-                $data = $crawler->filter('h1.product-name')->filter('span[itemprop="name"]')->text();
-                break;
-            case 'price':
-                $data = $crawler->filter('span.price-value')->text();
-                break;
-            case 'description':
-                $data = $crawler->filter('div.product-description')->filter('div[itemprop="description"]')->filter('p')->text();
-                break;
-            default:
-                return response()->json(['status' => 404,'message' => 'No content found.']);
+        foreach ($furnitureStores as $store) 
+        {
+            $crawler = SpatieCrawler::create()
+                ->addCrawlObserver(new ProductPageCrawlObserver($this->furnitureStoreRepo, $store))
+                ->setCrawlProfile($this->crawlProfile)
+                ->setTotalCrawlLimit(300)
+                ->startCrawling($store->url);
         }
-                    
-        return response()->json(['status' => 200, 'data' => $data]);
+
+        ob_end_clean();
     }
+
+    public function fullUrl() {
+        echo $this->furnitureStoreRepo->getStoreByUrl($this->url);
+    }
+
 }

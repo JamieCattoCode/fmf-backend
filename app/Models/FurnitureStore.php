@@ -10,4 +10,9 @@ class FurnitureStore extends Model
     use HasFactory;
 
     protected $guarded = [];
+
+    public function products()
+    {
+        return $this->hasMany(FurnitureItem::class);
+    }
 }

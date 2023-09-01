@@ -18,4 +18,5 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/scrape', [ContentCrawler::class, 'getSelectionFromDocument']);
+Route::get('/scrape', [ContentCrawler::class, 'crawlAll']);
+// https://crawler-test.com/

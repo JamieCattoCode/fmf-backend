@@ -27,16 +27,16 @@ class ContentCrawler extends Controller
         set_time_limit(0);
     }
 
-    public function crawl(string $storeId)
+    public function crawl(string $storeId, bool $log=true)
     {
         ob_start(); // Start output buffering
 
         $furnitureStore = $this->furnitureStoreRepo->getStoreById($storeId);
 
         $crawler = SpatieCrawler::create()
-        ->addCrawlObserver(new ProductPageCrawlObserver($this->furnitureStoreRepo, $furnitureStore, true))
-        ->setCrawlProfile($this->crawlProfile)
-        // ->setTotalCrawlLimit(500)
+        ->addCrawlObserver(new ProductPageCrawlObserver($this->furnitureStoreRepo, $furnitureStore, $log))
+        // ->setCrawlProfile($this->crawlProfile)
+        ->setTotalCrawlLimit(200)
         ->startCrawling($furnitureStore->url);
 
         $output = ob_get_contents(); // Store buffer in variable
@@ -52,11 +52,7 @@ class ContentCrawler extends Controller
 
         foreach ($furnitureStores as $store) 
         {
-            $crawler = SpatieCrawler::create()
-                ->addCrawlObserver(new ProductPageCrawlObserver($this->furnitureStoreRepo, $store))
-                ->setCrawlProfile($this->crawlProfile)
-                ->setTotalCrawlLimit(300)
-                ->startCrawling($store->url);
+            $this->crawl($store->id, false);
         }
     }
 

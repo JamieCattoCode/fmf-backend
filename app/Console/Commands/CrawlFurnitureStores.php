@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Repository\Eloquent\FurnitureStoreRepository;
 use Illuminate\Console\Command;
+use App\Http\Controllers\ContentCrawler;
 
 class CrawlFurnitureStores extends Command
 {
@@ -22,16 +23,18 @@ class CrawlFurnitureStores extends Command
     protected $description = 'Find furniture products by crawling the furniture stores in the database.';
 
     protected $furnitureStoreRepository;
+    protected $contentCrawler;
 
     /**
      * Create a new command instance.
      *
      * @return void
      */
-    public function __construct(FurnitureStoreRepository $furnitureStoreRepository)
+    public function __construct(FurnitureStoreRepository $furnitureStoreRepository, ContentCrawler $contentCrawler)
     {
         parent::__construct();
         $this->furnitureStoreRepository = $furnitureStoreRepository;
+        $this->contentCrawler = $contentCrawler;
     }
 
     /**
@@ -41,17 +44,22 @@ class CrawlFurnitureStores extends Command
      */
     public function handle()
     {
-        // Get all furniture stores from database
         $furnitureStores = $this->furnitureStoreRepository->getAllStores();
-        // Call a crawler method for each one
-        foreach ($furnitureStores as $store) {
-            
-        }
-        // Store all of the items retrieved in the database
-    }
 
-    private function crawlStore()
-    {
+        $bar = $this->output->createProgressBar(count($furnitureStores));
+
+        $this->info("Beginning scrape of the furniture stores database.`");
+        $bar->start();
         
+        foreach ($furnitureStores as $store) 
+        {
+            $this->info("\nScraping from " . $store->url);
+            $this->contentCrawler->crawl($store->id, false);
+            $bar->advance();
+        }
+
+        $this->info("Database scrape complete.");
+
+        $bar->finish();
     }
 }

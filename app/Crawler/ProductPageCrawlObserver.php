@@ -54,21 +54,38 @@ class ProductPageCrawlObserver extends CrawlObserver {
     private function isProductPage(Crawler $crawler): bool
     {
         $basketBtn = $this->getBasketButtons($crawler);
-        if ($basketBtn->getNode(0)) {
+        if ($basketBtn) {
             return true;
         }
         return false;
     }
 
     private function getBasketButtons(Crawler $crawler)
-    // //button[span[contains(text(), 'basket')] or span[contains(text(), 'bag')] or span[contains(text(), 'cart')]]
     {
-        return $crawler->filterXPath(
-            "//button[span[contains(translate(text(), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'basket')] 
-            or span[contains(translate(text(), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'bag')] 
-            or span[contains(translate(text(), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'cart')]]"
-        );
+        // To-do: Loop through Xpath's until one provides a desirable result
+        $buttonsFromXPath = $this->getBasketButtonsFromXPath($crawler);
+        $buttonsFromAttributes = $this->getBasketButtonsFromAttributes($crawler);
+        if (
+            ($buttonsFromXPath->getNode(0) && $buttonsFromAttributes->getNode(0))
+            || (!$buttonsFromXPath->getNode(0) && $buttonsFromAttributes->getNode(0))
+        ) {
+            return $buttonsFromAttributes;
+        }
+        if($buttonsFromXPath->getNode(0) && !$buttonsFromAttributes->getNode(0)) {
+            return $buttonsFromXPath;
+        }
+        return null;
     }
+
+    private function getBasketButtonsFromXPath(Crawler $crawler)
+    {
+        return $crawler->filterXPath(config('constants.xpath'));
+    }
+
+    private function getBasketButtonsFromAttributes(Crawler $crawler)
+    {
+        return $crawler->filterXPath(createXPathFromAttrList());
+    }    
 
     private function logProductPage($url)
     {

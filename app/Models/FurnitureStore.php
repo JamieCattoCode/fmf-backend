@@ -11,8 +11,13 @@ class FurnitureStore extends Model
 
     protected $guarded = [];
 
-    public function products()
+    public function furnitureItems()
     {
         return $this->hasMany(FurnitureItem::class);
+    }
+
+    public function productPages()
+    {
+        return $this->hasMany(ProductPage::class);
     }
 }

@@ -13,7 +13,7 @@ class CrawlFurnitureStores extends Command
      *
      * @var string
      */
-    protected $signature = 'stores:crawl';
+    protected $signature = 'stores:crawl {storeId?}';
 
     /**
      * The console command description.
@@ -46,20 +46,38 @@ class CrawlFurnitureStores extends Command
     {
         $furnitureStores = $this->furnitureStoreRepository->getAllStores();
 
+        $storeId = $this->argument('storeId');
+
+        if ($storeId) {
+            $furnitureStore = $this->furnitureStoreRepository->getStoreById($storeId);
+            $this->scrapeStore($furnitureStore);
+        }
+        else {
+            $this->scrapeAllStores($furnitureStores);
+        }
+    }
+
+    private function scrapeAllStores($furnitureStores)
+    {
         $bar = $this->output->createProgressBar(count($furnitureStores));
 
-        $this->info("Beginning scrape of the furniture stores database.`");
+        $this->info("Beginning scrape of the furniture stores database...\n\n");
         $bar->start();
         
         foreach ($furnitureStores as $store) 
         {
-            $this->info("\nScraping from " . $store->url);
-            $this->contentCrawler->crawl($store->id, false);
+            $this->scrapeStore($store);
             $bar->advance();
         }
 
-        $this->info("Database scrape complete.");
+        $this->info("\n\nDatabase scrape complete.");
 
         $bar->finish();
+    }
+
+    private function scrapeStore($furnitureStore)
+    {
+        $this->info("\n\nScraping from " . $furnitureStore->url . "\n");
+        $this->contentCrawler->crawl($furnitureStore->id, false);
     }
 }

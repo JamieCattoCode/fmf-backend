@@ -15,7 +15,7 @@ class CreateProductPagesTable extends Migration
     {
         Schema::create('product_pages', function (Blueprint $table) {
             $table->id();
-            $table->string('url');
+            $table->string('url')->unique();
             $table->foreignId('furniture_store_id')->constrained()->cascadeOnDelete();
             $table->timestamps();
         });

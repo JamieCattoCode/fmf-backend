@@ -3,6 +3,7 @@ namespace App\Crawler;
 
 use App\Models\FurnitureStore;
 use App\Repository\FurnitureStoreInterface;
+use App\Repository\ProductPageInterface;
 use GuzzleHttp\Exception\RequestException;
 use Psr\Http\Message\UriInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -13,12 +14,19 @@ class ProductPageCrawlObserver extends CrawlObserver {
 
     private $productPageCount = 0;
     private $furnitureStoreRepo;
+    private $productPageRepo;
     private $furnitureStore;
     private $log;
 
-    public function __construct(FurnitureStoreInterface $furnitureStoreRepository, FurnitureStore $furnitureStore, bool $log=false)
+    public function __construct(
+        FurnitureStoreInterface $furnitureStoreRepository, 
+        ProductPageInterface $productPageRepository, 
+        FurnitureStore $furnitureStore, 
+        bool $log=false
+    )
     {
         $this->furnitureStoreRepo = $furnitureStoreRepository;
+        $this->productPageRepo = $productPageRepository;
         $this->furnitureStore = $furnitureStore;
         $this->log = $log;
     }
@@ -30,6 +38,8 @@ class ProductPageCrawlObserver extends CrawlObserver {
         $crawler = new Crawler($response->getBody());
         if ($this->isProductPage($crawler)) {
             $this->productPageCount += 1;
+            // Add product page to the DB table
+            $this->storePageInPagesTable($url->getHost());
             if ($this->log) {
                 $this->logProductPage($url);
             }
@@ -45,7 +55,7 @@ class ProductPageCrawlObserver extends CrawlObserver {
 
     public function finishedCrawling(): void
     {
-        $this->storeProductPages();
+        $this->storeProductPagesInFurnitureStores();
         if($this->log) {
             echo 'Crawling finished - found ' . $this->productPageCount . ' pages.<br>';
         }
@@ -87,6 +97,14 @@ class ProductPageCrawlObserver extends CrawlObserver {
         return $crawler->filterXPath(createXPathFromAttrList());
     }    
 
+    private function storePageInPagesTable($url)
+    {
+        $this->productPageRepo->addProductPage([
+            'url' => $url,
+            'furniture_store_id' => $this->furnitureStore->id
+        ]);
+    }
+
     private function logProductPage($url)
     {
         echo '<br>';
@@ -95,7 +113,7 @@ class ProductPageCrawlObserver extends CrawlObserver {
         echo '<br>';
     }
 
-    private function storeProductPages()
+    private function storeProductPagesInFurnitureStores()
     {
         $this->furnitureStoreRepo->setNumProductPages($this->furnitureStore->id, $this->productPageCount);
     }

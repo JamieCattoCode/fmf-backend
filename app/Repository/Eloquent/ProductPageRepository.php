@@ -1,4 +1,5 @@
 <?php
+namespace App\Repository\Eloquent;
 
 use App\Models\ProductPage;
 use App\Repository\ProductPageInterface;

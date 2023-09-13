@@ -39,7 +39,7 @@ class ProductPageCrawlObserver extends CrawlObserver {
         if ($this->isProductPage($crawler)) {
             $this->productPageCount += 1;
             // Add product page to the DB table
-            $this->storePageInPagesTable($url->getHost());
+            $this->storePageInPagesTable($url->getHost().$url->getPath());
             if ($this->log) {
                 $this->logProductPage($url);
             }

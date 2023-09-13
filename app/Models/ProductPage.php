@@ -9,6 +9,8 @@ class ProductPage extends Model
 {
     use HasFactory;
 
+    protected $guarded = [];
+
     public function furnitureStore()
     {
         return $this->belongsTo(FurnitureStore::class);

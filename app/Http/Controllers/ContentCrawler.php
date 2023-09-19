@@ -38,8 +38,7 @@ class ContentCrawler extends Controller
 
         $crawler = SpatieCrawler::create()
         ->addCrawlObserver(new ProductPageCrawlObserver($this->furnitureStoreRepo, $this->productPageRepo,  $furnitureStore, $log))
-        // ->setCrawlProfile($this->crawlProfile)
-        ->setTotalCrawlLimit(200)
+        ->setTotalCrawlLimit(400)
         ->startCrawling($furnitureStore->url);
 
         $output = ob_get_contents(); // Store buffer in variable
@@ -57,10 +56,6 @@ class ContentCrawler extends Controller
         {
             $this->crawl($store->id, false);
         }
-    }
-
-    public function fullUrl() {
-        echo $this->furnitureStoreRepo->getStoreByUrl($this->url);
     }
 
 }

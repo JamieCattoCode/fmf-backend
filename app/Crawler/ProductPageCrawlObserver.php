@@ -31,7 +31,11 @@ class ProductPageCrawlObserver extends CrawlObserver {
         $this->log = $log;
     }
 
-    public function willCrawl(UriInterface $url): void {}
+    public function willCrawl(UriInterface $url): void {
+        if ($this->log) {
+            echo 'About to crawl ' . $url->getPath() . '<br>';
+        }
+    }
 
     public function crawled(UriInterface $url, ResponseInterface $response, ?UriInterface $foundOnUrl = null): void
     {
@@ -99,10 +103,12 @@ class ProductPageCrawlObserver extends CrawlObserver {
 
     private function storePageInPagesTable($url)
     {
-        $this->productPageRepo->addProductPage([
-            'url' => $url,
-            'furniture_store_id' => $this->furnitureStore->id
-        ]);
+        if (!$this->productPageRepo->pageExists($url)) {
+            $this->productPageRepo->addProductPage([
+                'url' => $url,
+                'furniture_store_id' => $this->furnitureStore->id
+            ]);
+        }   
     }
 
     private function logProductPage($url)

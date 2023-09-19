@@ -9,5 +9,7 @@ interface ProductPageInterface
 
     public function getPageByUrl(string $url);
 
+    public function pageExists(string $url);
+
     public function addProductPage(array $details);
 }

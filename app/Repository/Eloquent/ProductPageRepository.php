@@ -21,6 +21,11 @@ class ProductPageRepository implements ProductPageInterface
         return ProductPage::findOrFail(['url' => $url]);
     }
 
+    public function pageExists(string $url)
+    {
+        return ProductPage::find(['url' => $url]);
+    }
+
     public function addProductPage(array $details)
     {
         return ProductPage::create($details);

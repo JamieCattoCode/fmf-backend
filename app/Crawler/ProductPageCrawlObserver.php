@@ -103,11 +103,15 @@ class ProductPageCrawlObserver extends CrawlObserver {
 
     private function storePageInPagesTable($url)
     {
+        if ($this->log) echo 'Attempting to store ' . $url . '<br>';
         if (!$this->productPageRepo->pageExists($url)) {
+            echo 'Adding ' . $url . 'to the DB.';
             $this->productPageRepo->addProductPage([
                 'url' => $url,
                 'furniture_store_id' => $this->furnitureStore->id
             ]);
+        } else {
+            if ($this->log) echo $url . ' already exists in the database.<br>';
         }   
     }
 

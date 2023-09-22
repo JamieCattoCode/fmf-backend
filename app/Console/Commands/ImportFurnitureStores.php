@@ -15,7 +15,7 @@ class ImportFurnitureStores extends Command
      *
      * @var string
      */
-    protected $signature = 'import:stores';
+    protected $signature = 'stores:import';
 
     /**
      * The console command description.

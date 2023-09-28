@@ -30,4 +30,9 @@ class ProductPageRepository implements ProductPageInterface
     {
         return ProductPage::create($details);
     }
+
+    public function firstOrCreateProductPage(array $details)
+    {
+        return ProductPage::firstOrCreate($details);
+    }
 }

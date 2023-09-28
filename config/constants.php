@@ -14,5 +14,9 @@ return [
                     //     or contains(translate(text(), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'purchase')
                     //     or contains(translate(text(), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'cart')] 
                     //     or contains(translate(text(), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'basket')] 
-    "attributes" => ["cy-basketaddbutton"]
+    "attributes" => ["cy-basketaddbutton"],
+    "furnitureTypes" => [   'rug', 'bedding', 'bed', 'sheet', 'duvet', 'table', 'sofa', 'chair', 'sideboard', 
+                            'cabinet', 'lamp', 'light', 'mattress', 'pillow', 'mirror', 'cushion'
+                        ],
+    ""
 ];

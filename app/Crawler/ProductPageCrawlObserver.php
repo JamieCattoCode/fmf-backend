@@ -4,6 +4,7 @@ namespace App\Crawler;
 use App\Models\FurnitureStore;
 use App\Repository\FurnitureStoreInterface;
 use App\Repository\ProductPageInterface;
+use Illuminate\Validation\ValidationException;
 use GuzzleHttp\Exception\RequestException;
 use Psr\Http\Message\UriInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -17,6 +18,7 @@ class ProductPageCrawlObserver extends CrawlObserver {
     private $productPageRepo;
     private $furnitureStore;
     private $log;
+    private $foundUrls;
 
     public function __construct(
         FurnitureStoreInterface $furnitureStoreRepository, 
@@ -29,6 +31,7 @@ class ProductPageCrawlObserver extends CrawlObserver {
         $this->productPageRepo = $productPageRepository;
         $this->furnitureStore = $furnitureStore;
         $this->log = $log;
+        $this->foundUrls = [];
     }
 
     public function willCrawl(UriInterface $url): void {
@@ -39,11 +42,12 @@ class ProductPageCrawlObserver extends CrawlObserver {
 
     public function crawled(UriInterface $url, ResponseInterface $response, ?UriInterface $foundOnUrl = null): void
     {
-        $crawler = new Crawler($response->getBody());
-        if ($this->isProductPage($crawler)) {
-            $this->productPageCount += 1;
-            // Add product page to the DB table
-            $this->storePageInPagesTable($url->getHost().$url->getPath());
+        $pageBody = new Crawler($response->getBody());
+        $completeUrl = $url->getHost().$url->getPath();
+        if ($this->isProductPage($pageBody) && !in_array($completeUrl, $this->foundUrls)) {
+            $this->productPageCount++;
+            $this->foundUrls[] = $completeUrl;
+            $this->storePageInPagesTable($completeUrl);
             if ($this->log) {
                 $this->logProductPage($url);
             }
@@ -103,16 +107,15 @@ class ProductPageCrawlObserver extends CrawlObserver {
 
     private function storePageInPagesTable($url)
     {
-        if ($this->log) echo 'Attempting to store ' . $url . '<br>';
-        if (!$this->productPageRepo->pageExists($url)) {
-            echo 'Adding ' . $url . 'to the DB.';
+        try {
             $this->productPageRepo->addProductPage([
                 'url' => $url,
                 'furniture_store_id' => $this->furnitureStore->id
             ]);
-        } else {
-            if ($this->log) echo $url . ' already exists in the database.<br>';
-        }   
+        } catch (\Throwable $th) {
+            if($this->log) echo 'Page already in the database.<br>';
+        }    
+
     }
 
     private function logProductPage($url)

@@ -12,4 +12,6 @@ interface ProductPageInterface
     public function pageExists(string $url);
 
     public function addProductPage(array $details);
+
+    public function firstOrCreateProductPage(array $details);
 }

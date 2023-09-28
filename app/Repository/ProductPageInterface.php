@@ -9,6 +9,8 @@ interface ProductPageInterface
 
     public function getPageByUrl(string $url);
 
+    public function getPagesByFurnitureStore(string $furnitureStoreId);
+
     public function pageExists(string $url);
 
     public function addProductPage(array $details);

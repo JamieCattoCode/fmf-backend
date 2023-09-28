@@ -15,8 +15,9 @@ class CreateFurnitureItemsTable extends Migration
     {
         Schema::create('furniture_items', function (Blueprint $table) {
             $table->id();
-            $table->string('title');
-            $table->string('url');
+            $table->string('title')->nullable();
+            $table->string('url')->unique();
+            $table->string('furniture_type');
             $table->foreignId('furniture_store_id')->constrained()->cascadeOnDelete();
             $table->decimal('height')->nullable();
             $table->decimal('width')->nullable();

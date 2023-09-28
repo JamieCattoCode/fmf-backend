@@ -26,7 +26,7 @@ class FurnitureItemRepository implements FurnitureItemInterface
         return FurnitureItem::where('url', $url)->exists();
     }
 
-    public function addFurnitureItem(array $details)
+    public function addFurnitureItem(array $details): FurnitureItem
     {
         return FurnitureItem::create($details);
     }

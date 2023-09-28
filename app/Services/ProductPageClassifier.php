@@ -2,6 +2,7 @@
 namespace App\Services;
 
 use App\Models\ProductPage;
+use App\Repository\Eloquent\FurnitureItemRepository;
 use App\Repository\Eloquent\ProductPageRepository;
 use DOMElement;
 use GuzzleHttp\Client;
@@ -10,6 +11,7 @@ use Symfony\Component\DomCrawler\Crawler;
 class ProductPageClassifier
 {
     private $productPageRepository;
+    private $furnitureItemRepository;
     private $client;
 
     protected $xPathExpressions = [
@@ -20,9 +22,10 @@ class ProductPageClassifier
         '//section[contains(@class, "main-product-section")]' // Urbanara
     ];
 
-    public function __construct(ProductPageRepository $productPageRepository)
+    public function __construct(ProductPageRepository $productPageRepository, FurnitureItemRepository $furnitureItemRepository)
     {
         $this->productPageRepository = $productPageRepository;
+        $this->furnitureItemRepository = $furnitureItemRepository;
         $this->client = new Client();
     }
 
@@ -30,19 +33,16 @@ class ProductPageClassifier
     {
         // Get the product pages from the database
         $productPageModels = $this->productPageRepository->getAllProductPages();
-        $predictions = [];
 
         $productPageModels = $productPageModels->splice(0, 50);
 
         foreach($productPageModels as $productPageModel) {
-            $this->classifyProductPage($productPageModel, $predictions);
+            $this->classifyProductPage($productPageModel);
         }
-
-        dd($predictions);
 
     }
 
-    public function classifyProductPage(ProductPage $productPage, &$predictions)
+    public function classifyProductPage(ProductPage $productPage)
     {
         // Get the main content
         $furnitureStore = $productPage->furnitureStore;
@@ -51,13 +51,20 @@ class ProductPageClassifier
         $crawler = $crawler->filterXPath($mainXPath);
 
         if(!$crawler->getNode(0)) {
-            return [$productPage->url => 'NOT A PRODUCT PAGE'];
+            return null;
         }
 
         $productType = $this->classifyProduct($productPage, $crawler);
 
-        $predictions[$productPage->url] = $productType;
-        return [$productPage->url => $productType];
+        if ($productType != 'Could not classify.') {
+            return $this->furnitureItemRepository->addFurnitureItem([
+                "url" => $productPage->url,
+                "furniture_type" => $productType,
+                "furniture_store_id" => $productPage->furnitureStore->id,
+            ]);
+        }
+        
+        return null;
     }
 
     private function classifyProduct(ProductPage $productPage, Crawler $mainContent)

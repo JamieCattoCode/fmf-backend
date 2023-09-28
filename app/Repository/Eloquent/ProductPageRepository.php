@@ -21,6 +21,11 @@ class ProductPageRepository implements ProductPageInterface
         return ProductPage::where(['url' => $url])->firstOrFail();
     }
 
+    public function getPagesByFurnitureStore(string $furnitureStoreId)
+    {
+        return ProductPage::where(['furniture_store_id' => $furnitureStoreId])->get();
+    }
+
     public function pageExists(string $url)
     {
         return ProductPage::where('url', $url)->exists();

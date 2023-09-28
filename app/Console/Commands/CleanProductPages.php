@@ -37,6 +37,6 @@ class CleanProductPages extends Command
      */
     public function handle()
     {
-        return 0;
+        // 
     }
 }

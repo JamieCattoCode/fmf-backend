@@ -15,7 +15,7 @@ class ImportFurnitureStores extends Command
      *
      * @var string
      */
-    protected $signature = 'stores:import';
+    protected $signature = 'stores:import {--R|reduced}';
 
     /**
      * The console command description.
@@ -41,7 +41,9 @@ class ImportFurnitureStores extends Command
      */
     public function handle()
     {
-        $path = Storage::path('furniture-stores-uk.csv');
+        $fileName = $this->option('reduced') ? 'reduced-furniture-stores-uk.csv' : 'furniture-stores-uk.csv';
+        $this->info("File name: " . $fileName);
+        $path = Storage::path($fileName);
         $csv = Reader::createFromPath($path);
 
         $csv->setHeaderOffset(0);

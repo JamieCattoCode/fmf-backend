@@ -22,7 +22,7 @@ class CreateFurnitureItemsTable extends Migration
             $table->decimal('height')->nullable();
             $table->decimal('width')->nullable();
             $table->decimal('depth')->nullable();
-            $table->decimal('price')->nullable();
+            $table->string('price')->nullable();
             $table->timestamps();
         });
     }

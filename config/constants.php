@@ -18,5 +18,11 @@ return [
     "furnitureTypes" => [   'rug', 'bedding', 'bed', 'sheet', 'duvet', 'table', 'sofa', 'chair', 'sideboard', 
                             'cabinet', 'lamp', 'light', 'mattress', 'pillow', 'mirror', 'cushion'
                         ],
-    ""
+    "titleXPaths" => [
+        1 => "//h1[@class='product-detail__title']",
+    ],
+
+    "priceXPaths" => [
+        1 => "//dd[@class='product-detail__prices']"
+    ]
 ];

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ContentCrawler;
+use App\Services\FurnitureDetailsExtractor;
 use App\Services\ProductPageCleaner;
 use Illuminate\Support\Facades\Route;
 
@@ -24,3 +25,5 @@ Route::get('/scrape', [ContentCrawler::class, 'crawlAll']);
 // https://crawler-test.com/
 
 Route::get('/clean', [ProductPageCleaner::class, 'cleanAllProductPages']);
+
+Route::get('/extract', [FurnitureDetailsExtractor::class, 'testExtraction']);

@@ -9,6 +9,8 @@ interface FurnitureItemInterface
 
     public function getPageByUrl(string $url);
 
+    public function getItemsByFurnitureStore(string $furnitureStoreId);
+
     public function pageExists(string $url);
 
     public function addFurnitureItem(array $details);

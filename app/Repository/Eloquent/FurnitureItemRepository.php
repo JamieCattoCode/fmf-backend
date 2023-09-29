@@ -21,6 +21,11 @@ class FurnitureItemRepository implements FurnitureItemInterface
         return FurnitureItem::where(['url' => $url])->firstOrFail();
     }
 
+    public function getItemsByFurnitureStore(string $furnitureStoreId)
+    {
+        return FurnitureItem::where(['furniture_store_id' => $furnitureStoreId])->get();
+    }
+
     public function pageExists(string $url)
     {
         return FurnitureItem::where('url', $url)->exists();

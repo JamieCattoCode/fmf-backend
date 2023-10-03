@@ -11,12 +11,12 @@ class FurnitureItemRepository implements FurnitureItemInterface
         return FurnitureItem::all();
     }
 
-    public function getPageById(string $id)
+    public function getItemById(string $id)
     {
         return FurnitureItem::findOrFail($id);
     }
 
-    public function getPageByUrl(string $url)
+    public function getItemByUrl(string $url)
     {
         return FurnitureItem::where(['url' => $url])->firstOrFail();
     }
@@ -26,7 +26,12 @@ class FurnitureItemRepository implements FurnitureItemInterface
         return FurnitureItem::where(['furniture_store_id' => $furnitureStoreId])->get();
     }
 
-    public function pageExists(string $url)
+    public function getItemsByFurnitureType(string $type)
+    {
+        return FurnitureItem::where(['furniture_type' => $type])->get();
+    }
+
+    public function itemExists(string $url)
     {
         return FurnitureItem::where('url', $url)->exists();
     }

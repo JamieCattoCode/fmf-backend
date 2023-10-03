@@ -5,6 +5,7 @@ use App\Models\FurnitureItem;
 use App\Repository\Eloquent\FurnitureItemRepository;
 use DOMNodeList;
 use GuzzleHttp\Client;
+use PhpParser\Node\Stmt\TryCatch;
 use Symfony\Component\DomCrawler\Crawler;
 
 class FurnitureDetailsExtractor {
@@ -20,9 +21,22 @@ class FurnitureDetailsExtractor {
     public function testExtraction()
     {
         // $furnitureItem = FurnitureItem::where(['furniture_store_id' => 1])->firstOrFail();
-        $furnitureItem = FurnitureItem::find(136);
+        // $furnitureItem = FurnitureItem::find(136);
+        $furnitureItems = FurnitureItem::all();
+        $dimensionList = [];
 
-        $this->extractDetails($furnitureItem);
+        foreach ($furnitureItems as $furnitureItem) {
+            try {
+                $title = $this->extractTitle($this->getCrawler($furnitureItem->url), $furnitureItem);
+                $dimensions = $this->extractDimensions($this->getCrawler($furnitureItem->url), $furnitureItem);
+                $dimensionList[] = [$title => $dimensions];
+                
+            } catch (\Throwable $th) {
+                dd($furnitureItem, $th->getMessage());
+            }
+        }
+
+        dd($dimensionList);
     }
 
     public function extractDetails(FurnitureItem $furnitureItem)
@@ -32,11 +46,13 @@ class FurnitureDetailsExtractor {
         $title = $this->extractTitle($crawler, $furnitureItem);
         $price = $this->extractPrice($crawler, $furnitureItem);
         $dimensions = $this->extractDimensions($crawler, $furnitureItem);
+        $imageLink = $this->extractImageLink($crawler, $furnitureItem);
 
         return [
             "title" => $title,
             "price" => $price,
             "dimensions" => $dimensions,
+            "img" => $imageLink
         ];
     }
 
@@ -88,6 +104,14 @@ class FurnitureDetailsExtractor {
         }
     }
 
+    private function extractImageLink(Crawler $crawler, FurnitureItem $furnitureItem) {
+        if ($furnitureItem->furnitureStore->id == 1) {
+            $wrapper = $crawler->filterXPath('//figure[@aria-label="Image 0"]');
+            $img = $wrapper->filter('img')->getNode(0);
+            return $img->getAttribute('src');
+        }
+    }
+
     private function formatPrice(string $unformattedString, $furnitureStoreId) 
     {
         $cleanedString = preg_replace('/[^\d£$€]+/', '', $unformattedString);
@@ -96,7 +120,7 @@ class FurnitureDetailsExtractor {
 
     private function formatDimensions(string $unformattedString, $furnitureStoreId)
     {
-        $cleanedString = preg_replace('#[^0-9/x]+#', '', $unformattedString);
+        $cleanedString = preg_replace('#[^0-9/x.]+#', '', $unformattedString);
         return $cleanedString;
     }
 }

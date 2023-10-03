@@ -57,6 +57,7 @@ class PopulateFurnitureItems extends Command
                     $title = $productDetails['title'];
                     $price = $productDetails['price'];
                     $dimensions = $productDetails['dimensions'];
+                    $img = $productDetails["img"];
 
                     $height = $dimensions['height'];
                     $width = $dimensions['width'];
@@ -70,6 +71,7 @@ class PopulateFurnitureItems extends Command
                         "height" => $height,
                         "width" => $width,
                         "depth" => $depth,
+                        "img" => $img
                     ]);
                     
                 } catch (\Throwable $th) {

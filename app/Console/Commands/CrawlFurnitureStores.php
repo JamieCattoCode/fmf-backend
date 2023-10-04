@@ -4,7 +4,7 @@ namespace App\Console\Commands;
 
 use App\Repository\Eloquent\FurnitureStoreRepository;
 use Illuminate\Console\Command;
-use App\Http\Controllers\ContentCrawler;
+use App\Services\ContentCrawler;
 
 class CrawlFurnitureStores extends Command
 {

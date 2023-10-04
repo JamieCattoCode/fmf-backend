@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\ContentCrawler;
 use App\Services\FurnitureDetailsExtractor;
 use App\Services\ProductPageCleaner;
 use Illuminate\Support\Facades\Route;
@@ -19,10 +18,6 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
-
-Route::get('/scrape/{storeId}', [ContentCrawler::class, 'crawl']);
-Route::get('/scrape', [ContentCrawler::class, 'crawlAll']);
-// https://crawler-test.com/
 
 Route::get('/clean', [ProductPageCleaner::class, 'cleanAllProductPages']);
 

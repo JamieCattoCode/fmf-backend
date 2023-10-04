@@ -47,38 +47,51 @@ class PopulateFurnitureItems extends Command
     public function handle()
     {
         $storeId = $this->argument('storeId');
+        
         if($storeId) {
             $items = $this->furnitureItemRepository->getItemsByFurnitureStore($storeId);
+        } else {
+            $items = $this->furnitureItemRepository->getAllFurnitureItems();
+        }
+        
+        $this->populateFurnitureItems($items);
+    }
 
-            foreach ($items as $furnitureItem) {
-                try {
-                    $productDetails = $this->extractor->extractDetails($furnitureItem);
+    private function populateFurnitureItems($items)
+    {
+        foreach ($items as $furnitureItem) {
+            $this->populateFurnitureItem($furnitureItem);
+        }
+    }
 
-                    $title = $productDetails['title'];
-                    $price = $productDetails['price'];
-                    $dimensions = $productDetails['dimensions'];
-                    $img = $productDetails["img"];
+    private function populateFurnitureItem($item) 
+    {
+        try {
+            $productDetails = $this->extractor->extractDetails($item);
 
-                    $height = $dimensions['height'];
-                    $width = $dimensions['width'];
-                    $depth = $dimensions['depth'];
+            $title = $productDetails['title'];
+            $price = $productDetails['price'];
+            $dimensions = $productDetails['dimensions'];
+            $img = $productDetails["img"];
 
-                    $this->info("$title | $price | $height x $width x $depth\n");
+            $height = $dimensions['height'];
+            $width = $dimensions['width'];
+            $depth = $dimensions['depth'];
 
-                    $furnitureItem->update([
-                        "title" => $title,
-                        "price" => $price,
-                        "height" => $height,
-                        "width" => $width,
-                        "depth" => $depth,
-                        "img" => $img
-                    ]);
-                    
-                } catch (\Throwable $th) {
-                    $this->info("Error on page with ID $furnitureItem->id.");
-                    $this->info($th->getMessage());
-                }
-            }
+            $this->info("$title | $price | $height x $width x $depth\n");
+
+            $item->update([
+                "title" => $title,
+                "price" => $price,
+                "height" => $height,
+                "width" => $width,
+                "depth" => $depth,
+                "img" => $img
+            ]);
+            
+        } catch (\Throwable $th) {
+            $this->info("Error on page with ID $item->id.");
+            $this->info($th->getMessage());
         }
     }
 }

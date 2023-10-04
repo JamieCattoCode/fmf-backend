@@ -46,25 +46,39 @@ class ClassifyProductPages extends Command
     public function handle()
     {
         $storeId = $this->argument('storeId');
+
         if ($storeId) {
             $pages = $this->productPageRepository->getPagesByFurnitureStore($storeId);
-            
-            foreach ($pages as $page) {
-                try {
-                    $furnitureItem = $this->classifier->classifyProductPage($page);
-                    if ($furnitureItem) {
-                        $url = $furnitureItem->url;
-                        $furnitureType = $furnitureItem->furniture_type;
-                        $this->info("\nClassified $url as a $furnitureType.\n");
-                    } else {
-                        $this->info("Could not classify $page->url");
-                    }
+        } else {
+            $pages = $this->productPageRepository->getAllProductPages();
+        }
 
-                } catch (Throwable $thr) {
-                    $this->info("Error on page with ID $page->id.");
-                    $this->info($thr->getMessage());
-                }
-            }
+        $this->classifyPages($pages);
+    }
+
+    private function classifyPages($pages)
+    {
+        foreach ($pages as $page) {
+            $this->classifyProductPage($page);
         }
     }
+
+    private function classifyProductPage($page)
+    {
+        try {
+            $furnitureItem = $this->classifier->classifyProductPage($page);
+            if ($furnitureItem) {
+                $url = $furnitureItem->url;
+                $furnitureType = $furnitureItem->furniture_type;
+                $this->info("\nClassified $url as a $furnitureType.\n");
+            } else {
+                $this->info("Could not classify $page->url");
+            }
+
+        } catch (Throwable $thr) {
+            $this->info("Error on page with ID $page->id.");
+            $this->info($thr->getMessage());
+        }
+    }
+
 }

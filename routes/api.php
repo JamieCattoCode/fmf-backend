@@ -21,4 +21,4 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::get('/furniture/types', [FurnitureItemController::class, 'getFurnitureTypes']);
-Route::get('/furniture/{type}', [FurnitureItemController::class, 'getFurnitureWithType']);
+Route::get('/furniture', [FurnitureItemController::class, 'index']);

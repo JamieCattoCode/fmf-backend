@@ -43,11 +43,26 @@ class ImportFurnitureStores extends Command
     {
         $fileName = $this->option('reduced') ? 'reduced-furniture-stores-uk.csv' : 'furniture-stores-uk.csv';
         $this->info("File name: " . $fileName);
+
+        $csv = $this->importCSV($fileName);
+        
+        $data = $this->extractDataFromCSV($csv);
+
+        FurnitureStore::insert($data);
+    }
+
+    private function importCSV($fileName)
+    {
         $path = Storage::path($fileName);
         $csv = Reader::createFromPath($path);
 
         $csv->setHeaderOffset(0);
-        
+
+        return $csv;
+    }
+
+    private function extractDataFromCSV($csv)
+    {
         $statement = Statement::create();
 
         $records = $statement->process($csv);
@@ -61,6 +76,6 @@ class ImportFurnitureStores extends Command
             ];
         }
 
-        FurnitureStore::insert($data);
+        return $data;
     }
 }
